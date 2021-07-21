@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:googleapis/youtube/v3.dart';
 import 'PlaylistPage.dart';
 
 
@@ -9,6 +10,13 @@ class PlaylistItemData {
   int? totalItems;
 
   PlaylistItemData([this.playlistItemName]);
+
+  static List setName(String s){
+    List <String> playlistItemNameL = [];
+    playlistItemNameL.add(s);
+    
+    return playlistItemNameL;
+  }
 }
 
 class PlaylistItems extends StatefulWidget {
@@ -35,24 +43,28 @@ class _PlaylistItemsState extends State<PlaylistItems>{
 
 
 
-  final playlistItems = List<PlaylistItemData>.generate(
-    50,
-    (i) => PlaylistItemData("PlaylistItem $i")
+  final List playlistItems = List.generate(
+    50, (i) => 
+    PlaylistItemData.setName("PlaylistItem $i")
   );
 
-  Playlist playlist = Playlist();
+  PlaylistData playlist = PlaylistData();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.playlistP.Playlistname,
+        //TO DO: see how to access list index from the outside of the page/playlistItemsPage class(aka from the inside of the playlistData Class)
+        //like "widget.playlistP.getCurrentListIndexText"
+        //https://stackoverflow.com/questions/64809495/how-to-pass-a-list-from-one-class-to-another-in-flutter/64809614
+        //https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple
+        title: Text("Playlist"),
       ),
       body:
         Column(
           children:[ 
             SizedBox(
-              height: 500,
+              height: 700,
               child: ListView.builder(
                 itemCount: playlistItems.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -60,9 +72,8 @@ class _PlaylistItemsState extends State<PlaylistItems>{
                     onTap: () { 
                     //Debug
                     //print(playlist[index]),
-                  
                     },
-                    child: Container( //TO DO: change to Listview
+                    child: Container(
                       height: 50,
                       child: Center(
                         child: Text(

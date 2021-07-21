@@ -10,8 +10,16 @@ class PlaylistData {
 
   PlaylistData([playlistName]);
 
-  static void setName(String s){
-    playlistName = s;
+  static List setName(String s){
+    List <String> playlistNameL = [];
+    playlistNameL.add(s);
+    
+    return playlistNameL;
+  }
+
+  static String? getName(){
+    
+    return playlistName;
   }
 }
 
@@ -50,6 +58,7 @@ class _PlaylistState extends State<Playlist>{
   );
 
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +69,9 @@ class _PlaylistState extends State<Playlist>{
         Column(
           children:[ 
             SizedBox(
-              height: 50
+              height: 50,
+              child: 
+                Text('${generatedPlaylist[1]}'),
            ),
             Text("Playlists Crées",
               style: titleStyle,
