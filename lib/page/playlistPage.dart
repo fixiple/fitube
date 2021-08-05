@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'playlistItemsPage.dart';
-
+import 'package:fitube/api/apiCalls.dart';
+import 'package:fitube/page/playlistItemsPage.dart';
+import 'package:fitube/style/button.dart';
+import 'package:fitube/style/text.dart';
+import 'package:fitube/page/homePage.dart';
 class PlaylistData {
   //class where we store the Data related to the playlists
   static String? playlistName;
@@ -27,10 +30,10 @@ class PlaylistData {
 
 class Playlist extends StatefulWidget {
   
-  final user;
+  final userPP;
   
   //making key nullable
-  Playlist({Key? key, this.user}) : super(key: key);
+  Playlist({Key? key, this.userPP}) : super(key: key);
 
   @override
   _PlaylistState createState() => _PlaylistState();
@@ -39,25 +42,20 @@ class Playlist extends StatefulWidget {
 
 class _PlaylistState extends State<Playlist>{
   
-  final TextStyle titleStyle = TextStyle(
-    color: Colors.black,
-    fontSize: 30,
-    fontFamily: "Arial",
-  );
-
-  final TextStyle playlistStyle = TextStyle(
-    color: Colors.black54,
-    fontSize: 20,
-    fontFamily: "Arial",
-  );
-  
 
   List generatedPlaylist = List.generate(
     50, (int i) => 
     PlaylistData.setName("Playlist $i")
   );
 
-
+  //logout method/function
+  Future<void>? logOut() { 
+    GoogleApi.logout();
+    
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => Home()
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +72,10 @@ class _PlaylistState extends State<Playlist>{
                 Text('${generatedPlaylist[1]}'),
            ),
             Text("Playlists Crées",
-              style: titleStyle,
+              style: CustomTextStyle.titleStyle,
             ),
             SizedBox(
+              //some space
               height: 50
             ),
             SizedBox(
@@ -98,13 +97,18 @@ class _PlaylistState extends State<Playlist>{
                       height: 50,
                       child: Center(child: Text(
                         '${generatedPlaylist[index]}',
-                        style: playlistStyle)
+                        style: CustomTextStyle.playlistStyle)
                       ),
                     )
                   );
                 }
               ),
             ),
+            ElevatedButton(
+            style: Button.elevatedButtonStyle,
+            onPressed: () => logOut(),
+            child: Text('Disconnect'),
+          )
           ]
         )
     );

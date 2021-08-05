@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../api/googleSignInApi.dart';
+import 'package:fitube/api/apiCalls.dart';
 import 'playlistPage.dart';
+//strange, why import it like this?
+// ref: https://stackoverflow.com/a/56101133
+import 'package:fitube/style/button.dart';
 
 class Home extends StatefulWidget {
   //making key nullable
@@ -11,18 +14,22 @@ class Home extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<Home> {
-
-  final playlistvar = Playlist();
   
-  final ButtonStyle elevatedButtonStyle = ElevatedButton.styleFrom(
-  primary: Colors.yellow[300],
-  padding: EdgeInsets.symmetric(horizontal: 16),
-  shape: 
-    const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(2)),
-    ),
-  );
+  //signIn method
+  Future signIn() async{
+    final user;
+  
+    user = await GoogleApi.login();
+    
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => Playlist(
+        // we pass the user data in the next page
+        userPP : user
+      )));
+  }
+  
 
+ 
 
 
   @override
@@ -36,7 +43,7 @@ class _MyHomePageState extends State<Home> {
         children: [
           Text("Veuillez vous connecter"),
           ElevatedButton(
-            style: elevatedButtonStyle,
+            style: Button.elevatedButtonStyle,
             onPressed: () => signIn(),
             child: Text('Connexion a Google'),
           ),
@@ -45,13 +52,7 @@ class _MyHomePageState extends State<Home> {
     ); 
   }
 
-  //signIn method
-  Future signIn() async{
-    //final user = await GoogleSignInApi.login();
 
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => playlistvar));
-  }
 
 
   
