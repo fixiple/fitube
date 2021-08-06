@@ -4,6 +4,8 @@ import 'package:fitube/page/playlistItemsPage.dart';
 import 'package:fitube/style/button.dart';
 import 'package:fitube/style/text.dart';
 import 'package:fitube/page/homePage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 class PlaylistData {
   //class where we store the Data related to the playlists
   static String? playlistName;
@@ -27,13 +29,12 @@ class PlaylistData {
 }
 
 
-
 class Playlist extends StatefulWidget {
-  
-  final userPP;
+
+  final GoogleSignInAccount userPP;
   
   //making key nullable
-  Playlist({Key? key, this.userPP}) : super(key: key);
+  Playlist({Key? key, required this.userPP}) : super(key: key);
 
   @override
   _PlaylistState createState() => _PlaylistState();
@@ -41,7 +42,6 @@ class Playlist extends StatefulWidget {
 
 
 class _PlaylistState extends State<Playlist>{
-  
 
   List generatedPlaylist = List.generate(
     50, (int i) => 
@@ -52,6 +52,14 @@ class _PlaylistState extends State<Playlist>{
   Future<void>? logOut() { 
     GoogleApi.logout();
     
+    //shows a little bar with "Disconnected" for 2 seconds
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Disconnected'),
+        duration: Duration(seconds: 2)
+      )
+    );
+
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (context) => Home()
     ));
@@ -59,6 +67,9 @@ class _PlaylistState extends State<Playlist>{
 
   @override
   Widget build(BuildContext context) {
+    //we assign a variable to the passed userPP from the other screen
+    final user = widget.userPP;
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('Playlists'),
@@ -69,8 +80,8 @@ class _PlaylistState extends State<Playlist>{
             SizedBox(
               height: 50,
               child: 
-                Text('${generatedPlaylist[1]}'),
-           ),
+                Text('Welcome ' + user.displayName! + ' !'),
+            ),
             Text("Playlists Crées",
               style: CustomTextStyle.titleStyle,
             ),
@@ -95,10 +106,18 @@ class _PlaylistState extends State<Playlist>{
                     },
                     child: Container(
                       height: 50,
-                      child: Center(child: Text(
-                        '${generatedPlaylist[index]}',
-                        style: CustomTextStyle.playlistStyle)
-                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:[ 
+                          Expanded(
+                            child: Text(
+                            //resolved the "type 'List<String>' is not a subtype of type 'String' " error (aka: do a .toString() cast)
+                              generatedPlaylist[index].toString(),
+                              style: CustomTextStyle.playlistStyle
+                            )
+                          ),
+                        ],
+                      )
                     )
                   );
                 }
@@ -109,8 +128,8 @@ class _PlaylistState extends State<Playlist>{
             onPressed: () => logOut(),
             child: Text('Disconnect'),
           )
-          ]
-        )
+        ]
+      )
     );
   }  
 

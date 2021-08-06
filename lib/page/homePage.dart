@@ -17,21 +17,33 @@ class _MyHomePageState extends State<Home> {
   
   //signIn method
   Future signIn() async{
-    final user;
-  
+    var user;
+    //app not responding after user quits the http popup by pressing around it, or using the return button  
+    //while the popup is open (only in DEBUG MODE)
     user = await GoogleApi.login();
-    
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => Playlist(
-        // we pass the user data in the next page
-        userPP : user
-      )));
+
+    if (user!=null) {
+      //the user will not be able to return back to this screen
+       Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => Playlist(
+          // we pass the user data in the next page
+          userPP : user
+          )
+        )
+      );
+    } else {
+      //without debug([Run -> Run without Debugging] OR ["CTRL+F5"] ), the Snackbar message shows up and the app flow is not suddently unresponsive
+      //shows a little bar with [Text] 2 seconds
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sign In failed, please try again'),
+          duration: Duration(seconds: 2)
+        )
+      );
+    }
   }
-  
-
  
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

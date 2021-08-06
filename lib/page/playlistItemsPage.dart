@@ -1,3 +1,4 @@
+import 'package:fitube/style/text.dart';
 import 'package:flutter/material.dart';
 import 'PlaylistPage.dart';
 
@@ -23,7 +24,7 @@ class PlaylistItems extends StatefulWidget {
   final playlistP;
   
   //making key nullable
-  PlaylistItems({Key? key, this.playlistP}) : super(key: key);
+  PlaylistItems({Key? key, required this.playlistP}) : super(key: key);
 
   @override
   _PlaylistItemsState createState() => _PlaylistItemsState();
@@ -32,22 +33,17 @@ class PlaylistItems extends StatefulWidget {
 
 
 class _PlaylistItemsState extends State<PlaylistItems>{
-  
-  
+    
   final TextStyle playlistItemStyle = TextStyle(
     color: Colors.black,
     fontSize: 25,
     fontFamily: "Arial",
   );
 
-
-
   final List playlistItems = List.generate(
     50, (i) => 
     PlaylistItemData.setName("PlaylistItem $i")
   );
-
-  PlaylistData playlist = PlaylistData();
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +73,7 @@ class _PlaylistItemsState extends State<PlaylistItems>{
                       child: Center(
                         child: Text(
                           '${playlistItems[index]}',
-                          style: playlistItemStyle
+                          style: CustomTextStyle.playlistStyle
                         )
                       ),
                     )
