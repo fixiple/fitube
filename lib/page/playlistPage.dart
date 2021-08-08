@@ -5,6 +5,7 @@ import 'package:fitube/style/button.dart';
 import 'package:fitube/style/text.dart';
 import 'package:fitube/page/homePage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/youtube/v3.dart';
 
 class PlaylistData {
   //class where we store the Data related to the playlists
@@ -29,24 +30,44 @@ class PlaylistData {
 }
 
 
-class Playlist extends StatefulWidget {
+class PlaylistPage extends StatefulWidget {
 
   final GoogleSignInAccount userPP;
   
   //making key nullable
-  Playlist({Key? key, required this.userPP}) : super(key: key);
+  PlaylistPage({Key? key, required this.userPP}) : super(key: key);
 
   @override
   _PlaylistState createState() => _PlaylistState();
 }
 
 
-class _PlaylistState extends State<Playlist>{
+class _PlaylistState extends State<PlaylistPage>{
 
-  List generatedPlaylist = List.generate(
+ List generatedPlaylist = List.generate(
     50, (int i) => 
     PlaylistData.setName("Playlist $i")
-  );
+  ); 
+
+  //getting the playlist Information 
+  //ERROR: Future<List<dynamic>> is not a subtype of typ Playlist in type Cast
+  List playlist = YoutubeData().getplaylists() as List<Playlist>;
+
+
+  //PlaylistCount method
+  int playlistCount() {
+    int playlistCount = playlist.contentDetails!.itemCount!;
+
+    return playlistCount;
+  }
+
+  /* String playlistName(){
+    String playlistName = playlist.snippet!.title!;
+
+    return playlistName;
+  } */
+
+
 
   //logout method/function
   Future<void>? logOut() { 
@@ -69,7 +90,7 @@ class _PlaylistState extends State<Playlist>{
   Widget build(BuildContext context) {
     //we assign a variable to the passed userPP from the other screen
     final user = widget.userPP;
-    
+  
     return Scaffold(
       appBar: AppBar(
         title: Text('Playlists'),
@@ -92,7 +113,7 @@ class _PlaylistState extends State<Playlist>{
             SizedBox(
               height: 500,
               child: ListView.builder(
-                itemCount: generatedPlaylist.length,
+                itemCount: playlistCount(),
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                     onTap: () { 
@@ -100,7 +121,7 @@ class _PlaylistState extends State<Playlist>{
                       //print(playlist[index]),
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => PlaylistItems(
-                          playlistP : generatedPlaylist[index]
+                          playlistP : playlistName()
                         )
                       ));
                     },
@@ -112,7 +133,7 @@ class _PlaylistState extends State<Playlist>{
                           Expanded(
                             child: Text(
                             //resolved the "type 'List<String>' is not a subtype of type 'String' " error (aka: do a .toString() cast)
-                              generatedPlaylist[index].toString(),
+                              playlistName(),
                               style: CustomTextStyle.playlistStyle
                             )
                           ),

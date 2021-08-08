@@ -30,8 +30,10 @@ dependencies:
   font_awesome_flutter: ^9.1.0
   #------------------------------
   google_sign_in: ^5.0.4
+  extension_google_sign_in_as_googleapis_auth: ^2.0.2
   googleapis : ^4.0.0
   video_player: ^2.1.0
+  
   #-----------------------------
 
 dev_dependencies:

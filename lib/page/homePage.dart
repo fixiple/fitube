@@ -26,7 +26,7 @@ class _MyHomePageState extends State<Home> {
       //the user will not be able to return back to this screen
        Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => Playlist(
+          builder: (context) => PlaylistPage(
           // we pass the user data in the next page
           userPP : user
           )
