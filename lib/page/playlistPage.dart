@@ -7,28 +7,6 @@ import 'package:fitube/page/homePage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart';
 
-class PlaylistData {
-  //class where we store the Data related to the playlists
-  static String? playlistName;
-  //Url? image;
-  int? totalItems;
-
-
-  PlaylistData([playlistName]);
-
-  static List setName(String s){
-    List <String> playlistNameL = [];
-    playlistNameL.add(s);
-    
-    return playlistNameL;
-  }
-
-  static String? getName(){
-    
-    return playlistName;
-  }
-}
-
 
 class PlaylistPage extends StatefulWidget {
 
@@ -44,29 +22,33 @@ class PlaylistPage extends StatefulWidget {
 
 class _PlaylistState extends State<PlaylistPage>{
 
- List generatedPlaylist = List.generate(
-    50, (int i) => 
-    PlaylistData.setName("Playlist $i")
-  ); 
 
   //getting the playlist Information 
-  //ERROR: Future<List<dynamic>> is not a subtype of typ Playlist in type Cast
-  List playlist = YoutubeData().getplaylists() as List<Playlist>;
+  Future<PlaylistListResponse> getData() async {
 
+    var data = await YoutubeData().getplaylistsfromApi();
 
-  //PlaylistCount method
-  int playlistCount() {
-    int playlistCount = playlist.contentDetails!.itemCount!;
-
-    return playlistCount;
+    return data;
   }
 
-  /* String playlistName(){
-    String playlistName = playlist.snippet!.title!;
 
-    return playlistName;
-  } */
+  Future<int> getDataLength() async{
+    var data = await getData();
 
+    List playList = data.items!.map((e) => 
+    e.snippet!.title).toList();
+
+    return playList.length;
+  }
+
+  Future<String> getPlaylistName() async{
+    var data = await getData();
+    
+    List playListName = data.items!.map((e) => 
+    e.snippet!.title).toList();
+
+    return playListName.toString();
+  }
 
 
   //logout method/function
@@ -112,38 +94,44 @@ class _PlaylistState extends State<PlaylistPage>{
             ),
             SizedBox(
               height: 500,
-              child: ListView.builder(
-                itemCount: playlistCount(),
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () { 
-                      //Debug
-                      //print(playlist[index]),
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => PlaylistItems(
-                          playlistP : playlistName()
+              child: FutureBuilder(
+                future: getData(),
+                builder: (BuildContext context, AsyncSnapshot snapshot){
+                //VARIABLES
+                final PlaylistListResponse playlist = snapshot.data;
+                final List playlistName = playlist.items!.map((e) => e.snippet!.title).toList();
+                //--------------------------------------------------------------------------------
+                return ListView.builder(
+                  itemCount: playlist.items!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      onTap: () { 
+                        //Debug
+                        //print(playlist[index]),
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => PlaylistItems(
+                            playlistP : playlistName[index]
+                          )
+                        ));
+                      },
+                      child: Container(
+                        height: 50,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children:[ 
+                            Expanded(
+                              child: Text(
+                                playlistName[index],
+                                style: CustomTextStyle.playlistStyle
+                              )
+                            ),
+                          ],
                         )
-                      ));
-                    },
-                    child: Container(
-                      height: 50,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children:[ 
-                          Expanded(
-                            child: Text(
-                            //resolved the "type 'List<String>' is not a subtype of type 'String' " error (aka: do a .toString() cast)
-                              playlistName(),
-                              style: CustomTextStyle.playlistStyle
-                            )
-                          ),
-                        ],
                       )
-                    )
-                  );
-                }
+                    );
+                  });
+                })
               ),
-            ),
             ElevatedButton(
             style: Button.elevatedButtonStyle,
             onPressed: () => logOut(),

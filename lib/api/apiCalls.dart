@@ -25,7 +25,7 @@ class YoutubeData{
   //here we will be making the API calls
 
 
-  Future<List> getplaylists() async{
+  Future<PlaylistListResponse> getplaylistsfromApi() async{
     
     //refs: https://youtu.be/z4MsuZiEezY?t=248
     //and https://pub.dev/packages/extension_google_sign_in_as_googleapis_auth
@@ -34,15 +34,10 @@ class YoutubeData{
                                                //"The argument type 'AuthClient?' can't be assigned to the parameter type 'Client' " ??
     
     // we retrieve the snippets of our account only
-    final playlists = await _youtubeApi.playlists.list(['snippet'], mine: true);
+    final playlists = await _youtubeApi.playlists.list(['snippet'], maxResults: 50 ,mine: true );
 
-    //will store a list of titles retrieved from Api connection inside a variable
-    final _playlistsToList = playlists.items!.map((e) => 
-    e).toList(); 
-    return _playlistsToList;
+   return playlists;  
   }
-
-
 
 }
 
