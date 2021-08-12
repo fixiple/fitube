@@ -24,32 +24,12 @@ class _PlaylistState extends State<PlaylistPage>{
 
 
   //getting the playlist Information 
-  Future<PlaylistListResponse> getData() async {
+  Future<PlaylistListResponse> getPlaylistData() async {
 
     var data = await YoutubeData().getplaylistsfromApi();
 
     return data;
   }
-
-
-  Future<int> getDataLength() async{
-    var data = await getData();
-
-    List playList = data.items!.map((e) => 
-    e.snippet!.title).toList();
-
-    return playList.length;
-  }
-
-  Future<String> getPlaylistName() async{
-    var data = await getData();
-    
-    List playListName = data.items!.map((e) => 
-    e.snippet!.title).toList();
-
-    return playListName.toString();
-  }
-
 
   //logout method/function
   Future<void>? logOut() { 
@@ -95,11 +75,12 @@ class _PlaylistState extends State<PlaylistPage>{
             SizedBox(
               height: 500,
               child: FutureBuilder(
-                future: getData(),
+                future: getPlaylistData(),
                 builder: (BuildContext context, AsyncSnapshot snapshot){
                 //VARIABLES
                 final PlaylistListResponse playlist = snapshot.data;
                 final List playlistName = playlist.items!.map((e) => e.snippet!.title).toList();
+                final List playlistId = playlist.items!.map((e) => e.id).toList();
                 //--------------------------------------------------------------------------------
                 return ListView.builder(
                   itemCount: playlist.items!.length,
@@ -110,7 +91,8 @@ class _PlaylistState extends State<PlaylistPage>{
                         //print(playlist[index]),
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => PlaylistItems(
-                            playlistP : playlistName[index]
+                            playlistName : playlistName[index],
+                            playlistId : playlistId[index],
                           )
                         ));
                       },

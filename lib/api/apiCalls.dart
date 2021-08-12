@@ -23,7 +23,7 @@ class GoogleApi{
 
 class YoutubeData{
   //here we will be making the API calls
-
+  //TODO: add the 'nextPageToken' in items call (YoutubeData)
 
   Future<PlaylistListResponse> getplaylistsfromApi() async{
     
@@ -36,8 +36,21 @@ class YoutubeData{
     // we retrieve the snippets of our account only
     final playlists = await _youtubeApi.playlists.list(['snippet'], maxResults: 50 ,mine: true );
 
-   return playlists;  
+    return playlists;  
   }
 
+    Future<PlaylistItemListResponse> getPlaylistItemsFromApi(String id) async{
+    
+    //refs: https://youtu.be/z4MsuZiEezY?t=248
+    //and https://pub.dev/packages/extension_google_sign_in_as_googleapis_auth
+    final _authClient = await GoogleApi._googleSignIn.authenticatedClient();
+    final _youtubeApi = YouTubeApi(_authClient!);// why '!' at the end as a solution of error below
+                                               //"The argument type 'AuthClient?' can't be assigned to the parameter type 'Client' " ??
+    
+    // we retrieve the snippets of our account only
+    final items = await _youtubeApi.playlistItems.list(['snippet'], maxResults: 50, playlistId: id);
+
+    return items;
+  }
 }
 
