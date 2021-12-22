@@ -12,4 +12,10 @@ class CustomTextStyle {
     fontSize: 20,
     fontFamily: "Arial",
   );
+
+  static final TextStyle playlistItemStyle = TextStyle(
+    color: Colors.black54,
+    fontSize: 16,
+    fontFamily: "Arial",
+  );
 }

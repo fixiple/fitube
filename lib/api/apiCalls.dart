@@ -23,9 +23,9 @@ class GoogleApi{
 
 class YoutubeData{
   //here we will be making the API calls
-  //TODO: add the 'nextPageToken' in items call (YoutubeData)
+  
 
-  Future<PlaylistListResponse> getplaylistsfromApi() async{
+  Future<PlaylistListResponse> getplaylistsfromApi({String pageToken=""}) async{
     
     //refs: https://youtu.be/z4MsuZiEezY?t=248
     //and https://pub.dev/packages/extension_google_sign_in_as_googleapis_auth
@@ -39,7 +39,7 @@ class YoutubeData{
     return playlists;  
   }
 
-    Future<PlaylistItemListResponse> getPlaylistItemsFromApi(String id) async{
+  Future<PlaylistItemListResponse> getPlaylistItemsFromApi(String id, [String? pToken]) async{
     
     //refs: https://youtu.be/z4MsuZiEezY?t=248
     //and https://pub.dev/packages/extension_google_sign_in_as_googleapis_auth
@@ -48,8 +48,8 @@ class YoutubeData{
                                                //"The argument type 'AuthClient?' can't be assigned to the parameter type 'Client' " ??
     
     // we retrieve the snippets of our account only
-    final items = await _youtubeApi.playlistItems.list(['snippet'], maxResults: 50, playlistId: id);
-
+    final items = await _youtubeApi.playlistItems.list(['snippet'], maxResults: 50, playlistId: id, pageToken: pToken);
+    
     return items;
   }
 }

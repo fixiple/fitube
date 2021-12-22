@@ -21,12 +21,12 @@ class PlaylistPage extends StatefulWidget {
 
 
 class _PlaylistState extends State<PlaylistPage>{
-
+  String pageToken = "";
 
   //getting the playlist Information 
   Future<PlaylistListResponse> getPlaylistData() async {
 
-    var data = await YoutubeData().getplaylistsfromApi();
+    var data = await YoutubeData().getplaylistsfromApi(pageToken: pageToken);
 
     return data;
   }
@@ -70,7 +70,7 @@ class _PlaylistState extends State<PlaylistPage>{
             ),
             SizedBox(
               //some space
-              height: 50
+              height: 30
             ),
             SizedBox(
               height: 500,
@@ -81,47 +81,111 @@ class _PlaylistState extends State<PlaylistPage>{
                 final PlaylistListResponse playlist = snapshot.data;
                 final List playlistName = playlist.items!.map((e) => e.snippet!.title).toList();
                 final List playlistId = playlist.items!.map((e) => e.id).toList();
+                pageToken = playlist.nextPageToken.toString();
                 //--------------------------------------------------------------------------------
-                return ListView.builder(
-                  itemCount: playlist.items!.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () { 
-                        //Debug
-                        //print(playlist[index]),
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => PlaylistItems(
-                            playlistName : playlistName[index],
-                            playlistId : playlistId[index],
-                          )
-                        ));
-                      },
-                      child: Container(
-                        height: 50,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children:[ 
-                            Expanded(
-                              child: Text(
-                                playlistName[index],
-                                style: CustomTextStyle.playlistStyle
-                              )
-                            ),
-                          ],
-                        )
-                      )
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    return Text('State has no data...');
+                  case ConnectionState.waiting:
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: CircularProgressIndicator()
+                        ),
+                        Center(
+                          child: Text('Please have patience...')
+                        ),
+                      ]
                     );
-                  });
-                })
-              ),
+                  case ConnectionState.active:
+                    if (snapshot.hasData){
+                    return ListView.builder(
+                      itemCount: playlist.items!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onTap: () { 
+                            //Debug
+                            //print(playlist[index]),
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PlaylistItems(
+                                playlistName : playlistName[index],
+                                playlistId : playlistId[index],
+                              )
+                            ));
+                          },
+                          child: Container(
+                            height: 50,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children:[ 
+                                Expanded(
+                                  child: Text(
+                                    playlistName[index],
+                                    style: CustomTextStyle.playlistStyle
+                                  )
+                                ),
+                              ],
+                            )
+                          )
+                        );
+                      });
+                    } else {
+                      return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: CircularProgressIndicator()
+                        ),
+                        Center(
+                          child: Text('No Data! Try creating a youtube playlist')
+                        ),
+                      ]
+                    );
+                    }
+                  case ConnectionState.done:
+                    return ListView.builder(
+                      itemCount: playlist.items!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onTap: () { 
+                            //Debug
+                            //print(playlist[index]),
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PlaylistItems(
+                                playlistName : playlistName[index],
+                                playlistId : playlistId[index],
+                              )
+                            ));
+                          },
+                          child: Container(
+                            height: 50,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children:[ 
+                                Expanded(
+                                  child: Text(
+                                    playlistName[index],
+                                    style: CustomTextStyle.playlistStyle
+                                  )
+                                ),
+                              ],
+                            )
+                          )
+                        );
+                      });   
+                }
+              })
+            ),
             ElevatedButton(
-            style: Button.elevatedButtonStyle,
-            onPressed: () => logOut(),
-            child: Text('Disconnect'),
-          )
+              style: Button.elevatedButtonStyle,
+              onPressed: () => logOut(),
+              child: Text('Disconnect'),
+            )
         ]
       )
     );
-  }  
-
+  }
 }

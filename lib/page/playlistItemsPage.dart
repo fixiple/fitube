@@ -36,28 +36,48 @@ class PlaylistItems extends StatefulWidget {
 
 
 class _PlaylistItemsState extends State<PlaylistItems>{
-
   
-  final TextStyle playlistItemStyle = TextStyle(
-    color: Colors.black,
-    fontSize: 25,
-    fontFamily: "Arial",
-  );
+  
+  late PlaylistItemListResponse playlistItem;
 
-  final List playlistItems = List.generate(
-    50, (i) => 
-    PlaylistItemData.setName("PlaylistItem $i")
-  );
+  late String pToken = "";
+  
+  late ScrollController _scrollController;
+  
+  @override
+  void initState() {
+    getItemsData();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+    super.initState();
+  }
 
-    //getting the playlist Information 
-  Future<PlaylistItemListResponse> getItemsData() async {
-
+  //getting the playlist Information 
+  Future<PlaylistItemListResponse> getItemsData([String? pageToken]) async {
     //we pass the playlistId in the API call to get only the items from the current playlist
-    var data = await YoutubeData().getPlaylistItemsFromApi(widget.playlistId);
+    var data = await YoutubeData().getPlaylistItemsFromApi(widget.playlistId, pageToken);
 
     return data;
   }
 
+  String getNextPageToken() {
+    String pToken = playlistItem.nextPageToken.toString();
+    
+    return pToken;
+  }
+
+  
+  _scrollListener() async {
+    if ( _scrollController.offset >=  _scrollController.position.maxScrollExtent) { 
+      setState(()  {  
+        pToken = getNextPageToken();
+      });
+      print(pToken);
+      playlistItem = await getItemsData(pToken);
+      print(playlistItem);
+    }
+  }
+  // TODO: Find a way to not show the playlistItemsResponse is Null error after getting at the end of the PlaylistItemsList
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,36 +90,77 @@ class _PlaylistItemsState extends State<PlaylistItems>{
             SizedBox(
               height: 700,
               child: FutureBuilder(
-                future: getItemsData(),
-                builder: (BuildContext context, AsyncSnapshot snapshot){
-                  //VARIABLES
-                  final PlaylistItemListResponse playlistItem = snapshot.data;
+                future: getItemsData(pToken),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  playlistItem = snapshot.data;
                   final List playlistItemName = playlistItem.items!.map((e) => e.snippet!.title).toList();
-                  //--------------------------------
-                return ListView.builder(
-                  itemCount: playlistItem.items!.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () { 
-                      //Debug
-                      //print(playlist[index]),
-                      },
-                      child: Container(
-                        height: 50,
-                        child: Center(
-                          child: Text(
-                            playlistItemName[index],
-                            style: CustomTextStyle.playlistStyle
-                          )
-                        ),
-                      )
-                    );
-                  });
-              }),
-            ),
-          ]
-        )
+                  if (snapshot.hasData){
+                      switch (snapshot.connectionState){ 
+                        case ConnectionState.none:
+                        return Text('State has no data...');
+                      case ConnectionState.waiting: 
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Center(
+                              child: CircularProgressIndicator()
+                            ),
+                            Center(
+                              child: Text('Please have patience...')
+                            ),
+                          ]
+                        );
+                      case ConnectionState.active:
+                        if (snapshot.hasData){
+                          return ListView.builder(
+                          controller: _scrollController, 
+                          itemCount: playlistItem.items!.length,
+                          itemBuilder: (context, int index){
+                            return GestureDetector(
+                              onTap: () { 
+                              },
+                              child: Container(
+                                height: 50,
+                                child: Center(
+                                  child: Text(
+                                    index.toString() + " - " + playlistItemName[index],
+                                    style: CustomTextStyle.playlistItemStyle
+                                  )
+                                ),
+                              )
+                            );
+                          });
+                        } 
+                        //if no data is left to show, shows the following text in the screen
+                        return Text ("No data left");
+                        case ConnectionState.done:
+                          return ListView.builder(
+                            controller: _scrollController, 
+                            itemCount: playlistItem.items!.length,
+                            itemBuilder: (context, int index){
+                              return GestureDetector(
+                                onTap: () { 
+                              },
+                              child: Container(
+                                height: 50,
+                                child: Center(
+                                  child: Text(
+                                    index.toString() + " - " + playlistItemName[index],
+                                    style: CustomTextStyle.playlistItemStyle
+                                  )
+                                ),
+                              )
+                            );
+                          });
+                        
+                      }
+                  }else {
+                    return Text("No data left!");
+                  } 
+                })
+          )  
+          ])
     );
-  }  
-
+  }
 }
